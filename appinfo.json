@@ -1,0 +1,29 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "MachoGeekWare",
+    "longName": "NY Jets Game Time Watchface",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/jetslogo.png",
+                "name": "IMAGE_NYJETS_LOGO",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "NY Jets Gametime",
+    "targetPlatforms": [
+        "basalt"
+    ],
+    "uuid": "5983016b-d727-48c8-9de4-4e94abcbdc34",
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": true
+    }
+}
