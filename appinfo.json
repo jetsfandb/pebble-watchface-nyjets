@@ -9,6 +9,18 @@
     "resources": {
         "media": [
             {
+                "file": "images/bluetooth_disconnected.png",
+                "name": "IMAGE_NO_BLUETOOTH",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/battery_low.png",
+                "name": "IMAGE_BATTERY_LOW",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
                 "file": "images/jetslogo.png",
                 "name": "IMAGE_NYJETS_LOGO",
                 "targetPlatforms": null,
@@ -22,7 +34,7 @@
         "basalt"
     ],
     "uuid": "5983016b-d727-48c8-9de4-4e94abcbdc34",
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": true
     }
