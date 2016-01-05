@@ -9,6 +9,7 @@ static GBitmap *s_image_low_battery;
 static GBitmap *s_image_no_bluetooth;
 
 static TextLayer   *s_layer_time;
+static TextLayer   *s_layer_ampm;
 static TextLayer   *s_layer_gametime;
 static TextLayer   *s_layer_date; 
 
@@ -16,18 +17,20 @@ static BitmapLayer *s_layer_logo;
 static BitmapLayer *s_layer_low_battery;
 static BitmapLayer *s_layer_no_bluetooth;
 
-static struct schedule s_season_schedule[16];
+static struct schedule s_season_schedule[SEASON_NUMBER_OF_GAMES];
 
 static void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
 }
 
 static void handle_battery(BatteryChargeState charge_state) {
+  static bool s_low_battery = false;
   bool battery_low = (! charge_state.is_charging) && (charge_state.charge_percent < 50);
   layer_set_hidden(bitmap_layer_get_layer(s_layer_low_battery), (! battery_low));
-  if(battery_low) {
+  if(battery_low && (! s_low_battery)) { // If this is first time we've crossed over into low battery state;
     vibes_double_pulse();
-  }  
+  }
+  s_low_battery = battery_low;
 }
 static void handle_bluetooth(bool connected) {
   layer_set_hidden(bitmap_layer_get_layer(s_layer_no_bluetooth), (connected));
@@ -52,13 +55,27 @@ static void main_window_load(Window *window) {
 
   // Setup time
   GRect bounds_time = bounds_main_window;
-  bounds_time.size.h = 30;
+  bounds_time.size.h  = 30;
+  bounds_time.size.w -= 40;
   s_layer_time = text_layer_create(bounds_time);
   text_layer_set_text_alignment(s_layer_time, GTextAlignmentCenter);
   text_layer_set_text_color(s_layer_time, GColorWhite);
   text_layer_set_font(s_layer_time, fonts_get_system_font(FONT_KEY_BITHAM_30_BLACK));
   text_layer_set_background_color(s_layer_time, GColorFromRGBA(0, 0, 0, 0));
   layer_add_child(bitmap_layer_get_layer(s_layer_logo), text_layer_get_layer(s_layer_time));
+
+  // Setup ampm
+  GRect bounds_ampm = bounds_main_window;
+  bounds_ampm.size.h = 30;
+  bounds_ampm.size.w = 40;
+  bounds_ampm.origin.x = bounds_time.size.w + 1;
+  
+  s_layer_ampm = text_layer_create(bounds_ampm);
+  text_layer_set_text_alignment(s_layer_ampm, GTextAlignmentLeft);
+  text_layer_set_text_color(s_layer_ampm, GColorWhite);
+  text_layer_set_font(s_layer_ampm, fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD));
+  text_layer_set_background_color(s_layer_ampm, GColorFromRGBA(0, 0, 0, 0));
+  layer_add_child(bitmap_layer_get_layer(s_layer_logo), text_layer_get_layer(s_layer_ampm));
 
   // Setup gametime cheer
   GRect bounds_gametime = bounds_main_window;
@@ -133,6 +150,7 @@ static void main_window_unload(Window *window) {
     gbitmap_destroy(s_image_no_bluetooth);
   
     text_layer_destroy(s_layer_time);
+    text_layer_destroy(s_layer_ampm);
     text_layer_destroy(s_layer_gametime);
     text_layer_destroy(s_layer_date);
   
@@ -160,11 +178,16 @@ void update_time() {
   strncpy(s_month_name_short, s_month_name, 3);  
   
   // Time
-  static char s_time[9];
-  strftime(s_time, sizeof(s_time), "%l:%M %p", tick_time);
-  text_layer_set_background_color(s_layer_time, GColorFromRGBA(0, 0, 0, 0));
+  static char s_time[6];
+  strftime(s_time, sizeof(s_time), "%l:%M", tick_time);
   text_layer_set_text(s_layer_time, s_time);
 
+  // AMPM
+  static char s_ampm[3];
+  strftime(s_ampm, sizeof(s_ampm), "%p", tick_time);
+  text_layer_set_text(s_layer_ampm, s_ampm);
+
+  
   // Date
   static char s_date[3];
   strftime(s_date, sizeof(s_date), "%e", tick_time);    
@@ -176,7 +199,7 @@ void update_time() {
   char time_hhmm[5];
   strftime(date_yyyymmdd, sizeof(date_yyyymmdd), "%Y%m%d", tick_time);
   strftime(time_hhmm, sizeof(time_hhmm), "%H%M", tick_time);
-  if(game_time(s_season_schedule, 16, date_yyyymmdd, time_hhmm)) {
+  if(game_time(s_season_schedule, SEASON_NUMBER_OF_GAMES, date_yyyymmdd, time_hhmm)) {
     game_time_alert();
   }
   else {

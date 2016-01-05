@@ -1,5 +1,7 @@
 #pragma once
 
+#define SEASON_NUMBER_OF_GAMES 16
+
 struct schedule {
   char game_date[9]; // YYYYMMDD
   char game_time[5]; //24MM
